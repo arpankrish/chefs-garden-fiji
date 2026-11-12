@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Edit {{ variety.name }}{% else %}Upload New Microgreen Variety{% endif %} | Chefs Garden Fiji{% endblock %}
+
+{% block content %}
+<section class="section-block" style="padding-top: 48px;">
+  <div class="container" style="max-width: 980px;">
+    <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+      <a href="{% url 'catalog:studio_dashboard' %}" class="btn btn-outline btn-sm">
+        &larr; Back to Product Studio
+      </a>
+      {% if is_edit %}
+        <form method="post" action="{% url 'catalog:studio_delete' variety.slug %}" onsubmit="return confirm('Remove this variety from the catalog?');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline btn-sm" style="border-color: var(--crimson); color: #ff8da1;">
+            Delete Variety
+          </button>
+        </form>
+      {% endif %}
+    </div>
+
+    <div class="inquiry-form-card">
+      <div class="eyebrow-badge">Chefs Garden Fiji &bull; Product &amp; Photo Uploader</div>
+      <h1 style="font-family: var(--font-serif); font-size: 2.3rem; margin-bottom: 8px;">
+        {% if is_edit %}Update {{ variety.name }}{% else %}Upload New Microgreen Photo &amp; Culinary Specs{% endif %}
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 28px;">
+        Upload a macro product photograph and fill in the culinary description, flavor notes, harvest timeline, and FJD wholesale prices.
+      </p>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Section 1: Identity, Photo Upload & Description -->
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--gold-light); margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
+          1. Variety Identity, Product Photo &amp; Description
+        </h3>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Microgreen Variety Name *</label>
+            {{ form.name }}
+          </div>
+          <div class="form-group">
+            <label>Botanical / Scientific Name</label>
+            {{ form.scientific_name }}
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Botanical Category</label>
+            {{ form.category }}
+          </div>
+          <div class="form-group">
+            <label>Upload Product Photo (JPG / PNG / WebP)</label>
+            {{ form.primary_image }}
+          </div>
+        </div>
+
+        <!-- Live Photo Preview -->
+        <div style="margin-bottom: 20px;">
+          {% if is_edit and variety.primary_image %}
+            <img id="live-upload-preview" src="{{ variety.primary_image.url }}" alt="Preview" style="max-height: 200px; border-radius: 12px; border: 2px solid var(--gold);" />
+          {% else %}
+            <img id="live-upload-preview" src="" alt="Preview" style="display: none; max-height: 200px; border-radius: 12px; border: 2px solid var(--gold);" />
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label>Card Tagline (One-line visual &amp; flavor hook) *</label>
+          {{ form.tagline }}
+        </div>
+
+        <div class="form-group">
+          <label>Full Culinary Product Description *</label>
+          {{ form.description }}
+        </div>
+
+        <!-- Section 2: Flavor Profile & Culinary Pairings -->
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--gold-light); margin: 28px 0 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
+          2. Flavor Profile &amp; Chef Pairing Notes
+        </h3>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Tasting Profile (Comma-separated tags) *</label>
+            {{ form.flavor_profile }}
+          </div>
+          <div class="form-group">
+            <label>Flavor Intensity Level (1 to 5)</label>
+            {{ form.intensity_level }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Texture &amp; Mouthfeel Notes</label>
+          {{ form.texture_notes }}
+        </div>
+
+        <div class="form-group">
+          <label>Recommended Dish &amp; Ingredient Pairings (Comma-separated) *</label>
+          {{ form.culinary_pairings }}
+        </div>
+
+        <div class="form-group">
+          <label>Executive Chef Serving / Plating Tip</label>
+          {{ form.chef_serving_tip }}
+        </div>
+
+        <!-- Section 3: Harvest & Availability -->
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--gold-light); margin: 28px 0 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
+          3. Harvest-to-Order &amp; Availability Status
+        </h3>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Availability Status</label>
+            {{ form.availability_status }}
+          </div>
+          <div class="form-group">
+            <label>Grow Cycle (Days from Seed to Harvest)</label>
+            {{ form.grow_cycle_days }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Harvest &amp; Dispatch Lead Time Notice</label>
+          {{ form.lead_time_notice }}
+        </div>
+
+        <!-- Section 4: Packaging & FJD Pricing -->
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--gold-light); margin: 28px 0 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
+          4. Packaging Formats &amp; Wholesale Pricing (FJD $)
+        </h3>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Punnet Wholesale Price (FJD $) *</label>
+            {{ form.price_punnet_fjd }}
+          </div>
+          <div class="form-group">
+            <label>Punnet Size / Weight Label</label>
+            {{ form.punnet_weight_grams }}
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Live 10&times;20" Chef Tray Price (FJD $)</label>
+            {{ form.price_tray_fjd }}
+          </div>
+          <div class="form-group">
+            <label>Live Tray Specification Label</label>
+            {{ form.tray_size_label }}
+          </div>
+        </div>
+
+        <!-- Section 5: Nutrition & Storage -->
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--gold-light); margin: 28px 0 14px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
+          5. Cold-Chain Storage &amp; Nutritional Highlights
+        </h3>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Refrigerated Shelf Life (Days)</label>
+            {{ form.shelf_life_days }}
+          </div>
+          <div class="form-group" style="display: flex; align-items: center; gap: 22px; padding-top: 26px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              {{ form.is_featured }} Featured on Homepage
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              {{ form.is_active }} Visible in Catalog
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Commercial Kitchen Storage Instructions</label>
+          {{ form.storage_instructions }}
+        </div>
+
+        <div class="form-group">
+          <label>Nutritional &amp; Phytonutrient Highlights</label>
+          {{ form.nutritional_highlights }}
+        </div>
+
+        <div style="display: flex; gap: 14px; margin-top: 24px;">
+          <button type="submit" class="btn btn-gold" style="flex: 1; padding: 14px; font-size: 1rem;">
+            {% if is_edit %}Save Changes to {{ variety.name }}{% else %}Publish Microgreen to Catalog{% endif %}
+          </button>
+          <a href="{% url 'catalog:studio_dashboard' %}" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

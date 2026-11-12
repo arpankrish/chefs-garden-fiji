@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ variety.name }} — Culinary Datasheet | Chefs Garden Fiji{% endblock %}
+
+{% block content %}
+<section class="section-block" style="padding-top: 48px;">
+  <div class="container">
+    <div style="margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <a href="{% url 'catalog:home' %}#catalog" class="btn btn-outline btn-sm">
+        &larr; Back to Chef's Catalog
+      </a>
+      <div style="display: flex; gap: 10px;">
+        <a href="{% url 'catalog:studio_edit' variety.slug %}" class="btn btn-emerald btn-sm">
+          Edit Photo / Details in Studio
+        </a>
+        <a href="/admin/catalog/microgreen/{{ variety.pk }}/change/" class="btn btn-outline btn-sm">
+          Edit in Django Admin
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-grid" style="align-items: start;">
+      <!-- Left: High-Res Macro Imagery -->
+      <div>
+        <div class="hero-image-frame" style="aspect-ratio: 4 / 3.5; margin-bottom: 18px;">
+          {% if variety.primary_image %}
+            <img src="{{ variety.primary_image.url }}" alt="{{ variety.name }}" />
+          {% else %}
+            <img src="/media/site/hero-microgreens.jpg" alt="{{ variety.name }}" />
+          {% endif %}
+        </div>
+
+        {% if variety.gallery_images.all %}
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px;">
+            {% for g_img in variety.gallery_images.all %}
+              <div style="border-radius: 10px; overflow: hidden; border: 1px solid var(--border-subtle); aspect-ratio: 1;">
+                <img src="{{ g_img.image.url }}" alt="{{ g_img.caption|default:variety.name }}" style="width:100%;height:100%;object-fit:cover;" />
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Right: Full Culinary Datasheet -->
+      <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 36px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+          <span class="card-category">{{ variety.category.name|default:"Signature Microgreen" }}</span>
+          <span class="status-badge status-{{ variety.availability_status }}">
+            {{ variety.get_availability_status_display }}
+          </span>
+        </div>
+
+        <h1 style="font-family: var(--font-serif); font-size: 2.7rem; line-height: 1.1; margin-bottom: 4px;">
+          {{ variety.name }}
+        </h1>
+        {% if variety.scientific_name %}
+          <div class="card-latin" style="font-size: 0.95rem; margin-bottom: 16px;">{{ variety.scientific_name }}</div>
+        {% endif %}
+
+        <p style="font-size: 1.08rem; color: var(--gold-light); margin-bottom: 16px; font-weight: 500;">
+          {{ variety.tagline }}
+        </p>
+
+        <p style="color: #d6e4dc; margin-bottom: 26px; font-size: 0.96rem;">
+          {{ variety.description }}
+        </p>
+
+        <!-- Pricing Cards in FJD -->
+        <div class="card-pricing-row" style="margin-bottom: 26px;">
+          <div class="price-tier" style="padding: 16px;">
+            <span class="price-tier-label">{{ variety.punnet_weight_grams }}</span>
+            <span class="price-tier-amount" style="font-size: 1.45rem;">${{ variety.price_punnet_fjd }} <small>FJD</small></span>
+          </div>
+          <div class="price-tier" style="padding: 16px;">
+            <span class="price-tier-label">{{ variety.tray_size_label|default:"Live 10x20\" Chef Tray" }}</span>
+            <span class="price-tier-amount" style="font-size: 1.45rem;">
+              {% if variety.price_tray_fjd %}
+                ${{ variety.price_tray_fjd }} <small>FJD</small>
+              {% else %}
+                POA
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <!-- 4 Detailed Spec Sections -->
+        <div class="culinary-specs-box" style="gap: 16px; padding: 20px; margin-bottom: 26px;">
+          <div>
+            <strong style="color: var(--gold); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;">
+              1. Flavor Profile &amp; Mouthfeel ({{ variety.get_intensity_level_display }})
+            </strong>
+            <div class="tag-cloud" style="margin-top: 6px; margin-bottom: 6px;">
+              {% for tag in variety.flavor_tags %}
+                <span class="mini-tag">{{ tag }}</span>
+              {% endfor %}
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-muted);">Texture: {{ variety.texture_notes }}</p>
+          </div>
+
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding-top: 12px;">
+            <strong style="color: var(--gold); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;">
+              2. Culinary Pairings &amp; Chef Serving Tip
+            </strong>
+            <div class="tag-cloud" style="margin-top: 6px; margin-bottom: 8px;">
+              {% for pair in variety.pairing_tags %}
+                <span class="mini-tag pairing">{{ pair }}</span>
+              {% endfor %}
+            </div>
+            {% if variety.chef_serving_tip %}
+              <p style="font-size: 0.88rem; color: #8df2b7;">
+                <strong>Pass Tip:</strong> {{ variety.chef_serving_tip }}
+              </p>
+            {% endif %}
+          </div>
+
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding-top: 12px;">
+            <strong style="color: var(--gold); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;">
+              3. Harvest Cycle &amp; Fiji Dispatch
+            </strong>
+            <p style="font-size: 0.88rem; margin-top: 4px;">
+              <strong>Grow Time:</strong> {{ variety.grow_cycle_days }} days from seed to peak cotyledon/true-leaf stage.<br/>
+              <strong>Dispatch Notice:</strong> {{ variety.lead_time_notice }}
+            </p>
+          </div>
+
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding-top: 12px;">
+            <strong style="color: var(--gold); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;">
+              4. Cold-Chain Storage ({{ variety.shelf_life_days }} Days) &amp; Nutrition
+            </strong>
+            <p style="font-size: 0.88rem; margin-top: 4px;">{{ variety.storage_instructions }}</p>
+            <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 4px;">
+              <strong>Nutrients:</strong> {{ variety.nutritional_highlights }}
+            </p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+          <a href="{% url 'catalog:home' %}?variety={{ variety.name|urlencode }}#wholesale-inquiry" class="btn btn-gold" style="flex: 1;">
+            Request Sample / Standing Quote for {{ variety.name }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

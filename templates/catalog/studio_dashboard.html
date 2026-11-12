@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}Owner Product & Photo Studio | Chefs Garden Fiji{% endblock %}
+
+{% block content %}
+<section class="section-block" style="padding-top: 48px;">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow-badge">Chefs Garden Fiji &bull; Management Portal</div>
+        <h1 class="section-title">Product &amp; Photo Upload Studio</h1>
+        <p class="section-subtitle">
+          Upload microgreen photography, update descriptions, adjust FJD punnet/tray pricing, and manage incoming Chef Wholesale Inquiries.
+        </p>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <a href="{% url 'catalog:studio_create' %}" class="btn btn-gold">
+          + Upload New Microgreen Variety
+        </a>
+        <a href="/admin/" class="btn btn-outline">
+          Open Full Django Admin (/admin/)
+        </a>
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="studio-stats-grid">
+      <div class="studio-stat-card">
+        <strong>{{ varieties|length }}</strong>
+        <span style="color: var(--text-muted); font-size: 0.86rem;">Total Microgreen Varieties</span>
+      </div>
+      <div class="studio-stat-card">
+        <strong>{{ active_count }}</strong>
+        <span style="color: var(--text-muted); font-size: 0.86rem;">Active on Chef's Catalog</span>
+      </div>
+      <div class="studio-stat-card">
+        <strong>{{ featured_count }}</strong>
+        <span style="color: var(--text-muted); font-size: 0.86rem;">Featured Varieties</span>
+      </div>
+      <div class="studio-stat-card">
+        <strong>{{ new_inquiries_count }}</strong>
+        <span style="color: var(--text-muted); font-size: 0.86rem;">New Chef Wholesale Inquiries</span>
+      </div>
+    </div>
+
+    <!-- Microgreens Table -->
+    <h2 style="font-family: var(--font-serif); font-size: 1.9rem; margin-bottom: 16px;">
+      Microgreens Catalog &amp; Photos
+    </h2>
+    <div class="studio-table-wrap">
+      <table class="studio-table">
+        <thead>
+          <tr>
+            <th>Photo</th>
+            <th>Variety &amp; Botanical Name</th>
+            <th>Category</th>
+            <th>Availability &amp; Grow Time</th>
+            <th>Punnet (FJD)</th>
+            <th>Live Tray (FJD)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in varieties %}
+            <tr>
+              <td>
+                {% if item.primary_image %}
+                  <img src="{{ item.primary_image.url }}" alt="{{ item.name }}" class="studio-thumb" />
+                {% else %}
+                  <div style="width:60px;height:60px;border-radius:10px;background:#0b1e15;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--gold);">No Photo</div>
+                {% endif %}
+              </td>
+              <td>
+                <strong style="font-size: 1rem; color: var(--text-ivory); display: block;">{{ item.name }}</strong>
+                <span style="font-size: 0.78rem; font-style: italic; color: var(--text-muted);">{{ item.scientific_name }}</span>
+              </td>
+              <td>{{ item.category.name|default:"—" }}</td>
+              <td>
+                <span class="status-badge status-{{ item.availability_status }}" style="font-size: 0.68rem;">
+                  {{ item.get_availability_status_display }}
+                </span>
+                <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 4px;">
+                  {{ item.grow_cycle_days }} days grow &bull; {{ item.shelf_life_days }}d shelf
+                </div>
+              </td>
+              <td style="font-family: var(--font-mono); color: var(--gold-light); font-weight: 700;">
+                ${{ item.price_punnet_fjd }}
+              </td>
+              <td style="font-family: var(--font-mono); color: var(--gold-light); font-weight: 700;">
+                {% if item.price_tray_fjd %}${{ item.price_tray_fjd }}{% else %}—{% endif %}
+              </td>
+              <td>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <a href="{% url 'catalog:studio_edit' item.slug %}" class="btn btn-emerald btn-sm">
+                    Edit / Replace Photo
+                  </a>
+                  <a href="{% url 'catalog:variety_detail' item.slug %}" class="btn btn-outline btn-sm">
+                    View
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Wholesale Inquiries Table -->
+    <h2 style="font-family: var(--font-serif); font-size: 1.9rem; margin-bottom: 16px;">
+      Incoming Chef Wholesale &amp; Tasting Box Inquiries
+    </h2>
+    <div class="studio-table-wrap">
+      <table class="studio-table">
+        <thead>
+          <tr>
+            <th>Establishment &amp; Chef</th>
+            <th>Region &amp; Program</th>
+            <th>Contact (WhatsApp / Email)</th>
+            <th>Requested Varieties &amp; Notes</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inq in inquiries %}
+            <tr>
+              <td>
+                <strong style="color: var(--gold-light); display: block;">{{ inq.establishment_name }}</strong>
+                <span>{{ inq.chef_name }} ({{ inq.role_title }})</span>
+                <div style="font-size: 0.74rem; color: var(--text-muted);">{{ inq.created_at|date:"M d, Y H:i" }}</div>
+              </td>
+              <td>
+                <strong>{{ inq.get_inquiry_type_display }}</strong>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ inq.get_region_display }}</div>
+              </td>
+              <td>
+                <div style="font-family: var(--font-mono); font-size: 0.84rem;">{{ inq.phone_whatsapp }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ inq.email }}</div>
+              </td>
+              <td style="max-width: 340px;">
+                {% if inq.selected_varieties_summary %}
+                  <pre style="font-family: var(--font-sans); white-space: pre-wrap; font-size: 0.8rem; color: #b5ebd0; margin-bottom: 6px;">{{ inq.selected_varieties_summary }}</pre>
+                {% endif %}
+                {% if inq.culinary_notes %}
+                  <div style="font-size: 0.8rem; color: var(--text-muted);"><em>"{{ inq.culinary_notes }}"</em></div>
+                {% endif %}
+              </td>
+              <td>
+                <form method="post" action="{% url 'catalog:studio_inquiry_status' inq.pk %}" style="display: flex; gap: 6px; align-items: center;">
+                  {% csrf_token %}
+                  <select name="status" class="filter-select" style="padding: 6px 10px; font-size: 0.78rem;" onchange="this.form.submit()">
+                    {% for code, label in inq.Status.choices %}
+                      <option value="{{ code }}" {% if inq.status == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-muted);">No wholesale inquiries yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

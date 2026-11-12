@@ -1,0 +1,500 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <div class="eyebrow-badge">
+        <span>&#10022; Cultivated in Nadi for Fiji's Finest Kitchens</span>
+      </div>
+      <h1 class="hero-title">
+        Living Culinary Architecture for <span>Executive Chefs.</span>
+      </h1>
+      <p class="hero-lead">
+        From electric-magenta Red Garnet Amaranth to sinus-clearing Wasabi Mustard and sweet Speckled Pea Tendrils—harvested at dawn in the Nadi foothills and delivered chilled to island resorts, fine-dining pass tables, and superyachts across Fiji.
+      </p>
+
+      <div class="hero-cta-group">
+        <a href="#catalog" class="btn btn-gold">
+          Explore Chef's Catalog ({{ total_varieties_count }} Varieties)
+        </a>
+        <a href="#wholesale-inquiry" class="btn btn-outline">
+          Request Complimentary Tasting Box
+        </a>
+        <a href="{% url 'catalog:studio_dashboard' %}" class="btn btn-emerald">
+          Owner Photo &amp; Product Studio
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <strong>5:00 AM</strong>
+          <span>Daily Dawn Harvest &amp; Chilled Dispatch</span>
+        </div>
+        <div class="stat-item">
+          <strong>8–12 Days</strong>
+          <span>Peak Cold-Chain Kitchen Shelf Life</span>
+        </div>
+        <div class="stat-item">
+          <strong>100% Pure</strong>
+          <span>Zero Pesticides &bull; Non-GMO Culinary Seed</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-image-frame">
+        <img src="/media/site/hero-microgreens.jpg" alt="Chefs Garden Fiji Fresh Microgreens on Volcanic Basalt" />
+      </div>
+      <div class="hero-floating-card">
+        <h4>Live 10&times;20" Trays &amp; Chef Punnets</h4>
+        <p>Harvest tableside for maximum essential oil &amp; structural crunch, or order pre-chilled clam-shell punnets ready for the pass.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Chef's Catalog -->
+<section id="catalog" class="section-block">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow-badge">Fiji Wholesale Microgreens Catalog</div>
+        <h2 class="section-title">Curated Varieties for the Pass</h2>
+        <p class="section-subtitle">
+          Filter by botanical family, flavor intensity, or search by dish pairing (try <em>"Kokoda"</em>, <em>"Tuna"</em>, <em>"Duck"</em>, or <em>"Wasabi"</em>). Add varieties directly to your Wholesale Inquiry Tray.
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <span style="font-size: 0.85rem; color: var(--text-muted);">
+          Showing <strong id="catalog-visible-count" style="color: var(--gold-light);">{{ varieties|length }}</strong> varieties
+        </span>
+        <a href="{% url 'catalog:studio_create' %}" class="btn btn-outline btn-sm">
+          + Upload New Variety
+        </a>
+      </div>
+    </div>
+
+    <!-- Filter & Search Controls -->
+    <div class="catalog-controls">
+      <div class="filter-row">
+        <div class="category-pills">
+          <button type="button" class="filter-pill active" data-filter-category="all">
+            All Varieties
+          </button>
+          {% for cat in categories %}
+            <button type="button" class="filter-pill" data-filter-category="{{ cat.slug }}">
+              {{ cat.name }}
+            </button>
+          {% endfor %}
+        </div>
+
+        <div class="search-filter-group">
+          <div class="search-input-wrap">
+            <input
+              type="text"
+              id="catalog-search-input"
+              class="search-input"
+              placeholder="Search variety, flavor, or pairing (e.g. Kokoda, Tuna)..."
+              value="{{ search_query }}"
+            />
+          </div>
+
+          <select id="catalog-availability-select" class="filter-select" aria-label="Filter by availability">
+            <option value="all">All Availability</option>
+            <option value="AVAILABLE">Ready for Daily Harvest</option>
+            <option value="GROW_TO_ORDER">Grow-to-Order</option>
+            <option value="LIMITED">Limited Weekly Batch</option>
+          </select>
+
+          <select id="catalog-intensity-select" class="filter-select" aria-label="Filter by flavor intensity">
+            <option value="all">All Flavor Intensities</option>
+            <option value="1">1 — Delicate &amp; Subtle</option>
+            <option value="2">2 — Mild &amp; Fresh</option>
+            <option value="3">3 — Balanced &amp; Aromatic</option>
+            <option value="4">4 — Bold &amp; Earthy</option>
+            <option value="5">5 — Spicy &amp; Pungent</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="catalog-grid">
+      {% for item in varieties %}
+        <article
+          class="variety-card"
+          data-category="{{ item.category.slug|default:'uncategorized' }}"
+          data-availability="{{ item.availability_status }}"
+          data-intensity="{{ item.intensity_level }}"
+          data-search="{{ item.name }} {{ item.scientific_name }} {{ item.tagline }} {{ item.flavor_profile }} {{ item.culinary_pairings }} {{ item.description }}"
+        >
+          <div class="card-media">
+            {% if item.primary_image %}
+              <img src="{{ item.primary_image.url }}" alt="{{ item.name }}" loading="lazy" />
+            {% else %}
+              <img src="/media/site/hero-microgreens.jpg" alt="{{ item.name }}" loading="lazy" />
+            {% endif %}
+
+            <div class="card-badges-top">
+              <span class="status-badge status-{{ item.availability_status }}">
+                {{ item.get_availability_status_display }}
+              </span>
+              <span class="harvest-pill" title="Grow cycle from seed to harvest">
+                {{ item.grow_cycle_days }}d Grow &bull; {{ item.shelf_life_days }}d Shelf
+              </span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="card-category">
+              {{ item.category.name|default:"Signature Microgreen" }}
+            </div>
+
+            <div class="card-title-row">
+              <h3 class="card-title">
+                <a href="{% url 'catalog:variety_detail' item.slug %}">{{ item.name }}</a>
+              </h3>
+            </div>
+            {% if item.scientific_name %}
+              <div class="card-latin">{{ item.scientific_name }}</div>
+            {% endif %}
+
+            <p class="card-tagline">{{ item.tagline }}</p>
+
+            <!-- Culinary & Flavor Specs -->
+            <div class="culinary-specs-box">
+              <div class="spec-line">
+                <span class="spec-label">Flavor Intensity:</span>
+                <span class="intensity-dots" title="{{ item.get_intensity_level_display }}">
+                  {% for i in item.intensity_range %}
+                    <span class="dot {% if i <= item.intensity_level %}filled{% endif %}"></span>
+                  {% endfor %}
+                  <strong style="margin-left: 6px; color: var(--gold-light); font-size: 0.76rem;">
+                    {{ item.get_intensity_level_display }}
+                  </strong>
+                </span>
+              </div>
+
+              <div>
+                <span class="spec-label" style="display:block; font-size: 0.74rem; margin-bottom: 4px;">Tasting Profile:</span>
+                <div class="tag-cloud">
+                  {% for tag in item.flavor_tags %}
+                    <span class="mini-tag">{{ tag }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div>
+                <span class="spec-label" style="display:block; font-size: 0.74rem; margin-bottom: 4px;">Chef Pairings:</span>
+                <div class="tag-cloud">
+                  {% for pair in item.pairing_tags|slice:":4" %}
+                    <span class="mini-tag pairing">{{ pair }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Packaging & FJD Pricing -->
+            <div class="card-pricing-row">
+              <div class="price-tier">
+                <span class="price-tier-label">{{ item.punnet_weight_grams }}</span>
+                <span class="price-tier-amount">${{ item.price_punnet_fjd }} <small>FJD</small></span>
+              </div>
+              <div class="price-tier">
+                <span class="price-tier-label">Live 10&times;20" Chef Tray</span>
+                <span class="price-tier-amount">
+                  {% if item.price_tray_fjd %}
+                    ${{ item.price_tray_fjd }} <small>FJD</small>
+                  {% else %}
+                    POA
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+
+            <!-- Card Action Buttons -->
+            <div class="card-actions">
+              <button
+                type="button"
+                class="btn btn-outline btn-sm js-open-spec-modal"
+                data-name="{{ item.name }}"
+                data-latin="{{ item.scientific_name }}"
+                data-category-name="{{ item.category.name }}"
+                data-image="{% if item.primary_image %}{{ item.primary_image.url }}{% else %}/media/site/hero-microgreens.jpg{% endif %}"
+                data-description="{{ item.description }}"
+                data-flavor="{{ item.flavor_profile }}"
+                data-texture="{{ item.texture_notes }}"
+                data-pairings="{{ item.culinary_pairings }}"
+                data-tip="{{ item.chef_serving_tip }}"
+                data-grow-days="{{ item.grow_cycle_days }}"
+                data-lead-time="{{ item.lead_time_notice }}"
+                data-nutrition="{{ item.nutritional_highlights }}"
+                data-storage="{{ item.storage_instructions }}"
+                data-shelf-life="{{ item.shelf_life_days }}"
+                data-punnet-price="{{ item.price_punnet_fjd }}"
+                data-punnet-weight="{{ item.punnet_weight_grams }}"
+                data-tray-price="{{ item.price_tray_fjd|default:'48.00' }}"
+                data-tray-label="{{ item.tray_size_label }}"
+                data-detail-url="{% url 'catalog:variety_detail' item.slug %}"
+              >
+                Quick Spec Sheet
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-emerald btn-sm js-toggle-tray"
+                data-slug="{{ item.slug }}"
+                data-name="{{ item.name }}"
+                data-punnet="{{ item.price_punnet_fjd }}"
+                data-tray="{{ item.price_tray_fjd|default:'48.00' }}"
+              >
+                + Inquiry Tray
+              </button>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div id="catalog-empty-state" style="display: none; text-align: center; padding: 56px 20px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-top: 24px;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.8rem; margin-bottom: 8px;">No matching varieties found</h3>
+      <p style="color: var(--text-muted); margin-bottom: 18px;">Try clearing your search filter or request a custom seed grow program below.</p>
+      <button type="button" class="btn btn-gold btn-sm" onclick="document.getElementById('catalog-search-input').value=''; document.querySelector('[data-filter-category=all]').click();">
+        Reset Catalog Filters
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Culinary Standards & Fiji Logistics -->
+<section id="culinary-standards" class="section-block" style="background: rgba(13, 33, 24, 0.55); border-top: 1px solid var(--border-subtle);">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="eyebrow-badge">Built for Resort &amp; Restaurant Kitchens</div>
+        <h2 class="section-title">Why Fiji's Leading Chefs Partner With Us</h2>
+      </div>
+    </div>
+
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <div class="pillar-icon">&#9728;</div>
+        <h3>Dawn Harvest &amp; Cold Chain</h3>
+        <p>
+          Cut at 5:00 AM during peak turgor pressure, immediately hydro-cooled and packed with food-grade moisture pads to guarantee 8–12 days of crisp walk-in cooler life.
+        </p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-icon">&#9875;</div>
+        <h3>Island &amp; Marina Dispatch</h3>
+        <p>
+          Direct refrigerated delivery to Nadi, Denarau resorts, Port Denarau water-taxi &amp; ferry transfers for Mamanuca/Yasawa islands, Coral Coast, and Suva.
+        </p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-icon">&#9883;</div>
+        <h3>Custom Grow-to-Order</h3>
+        <p>
+          Designing a new seasonal degustation menu? Reserve dedicated 10&times;20" shelves in our climate-controlled grow room for bespoke herbs, shiso, sorrel, or edible blooms.
+        </p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-icon">&#10003;</div>
+        <h3>Live Trays or Chef Punnets</h3>
+        <p>
+          Choose between ready-to-plate 35g–60g clam-shell punnets or living uncut 10&times;20" trays so your brigade can snip living greens right at the pass.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Wholesale Inquiry & Complimentary Tasting Box Form -->
+<section id="wholesale-inquiry" class="section-block inquiry-section">
+  <div class="container inquiry-grid">
+    <div>
+      <div class="eyebrow-badge">Chef Wholesale &amp; Tasting Program</div>
+      <h2 class="section-title" style="margin-bottom: 18px;">
+        Request a Complimentary Chef's Tasting Box or Wholesale Quote
+      </h2>
+      <p style="color: var(--text-muted); margin-bottom: 28px; font-size: 1.02rem;">
+        Whether you helm an island resort kitchen in the Mamanucas, a fine-dining table in Denarau or Suva, or provision superyachts at Port Denarau Marina—we tailor standing weekly harvests to your menu.
+      </p>
+
+      <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px;">
+        <h4 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--gold-light); margin-bottom: 12px;">
+          What's Inside the Complimentary Chef's Tasting Box?
+        </h4>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; color: #d6e4dc;">
+          <li>&#10004; <strong>6 Signature Sample Punnets</strong> harvested the morning of delivery</li>
+          <li>&#10004; <strong>Printed Laminated Brigade Spec Sheet</strong> with flavor pairings &amp; storage guide</li>
+          <li>&#10004; <strong>Wholesale FJD Standing-Order Rate Card</strong> for Punnets &amp; Live Trays</li>
+          <li>&#10004; <strong>1-on-1 Crop Consultation</strong> with our Head Grower</li>
+        </ul>
+      </div>
+
+      <div style="padding: 20px; border-radius: var(--radius-md); border: 1px dashed var(--gold); background: rgba(212, 163, 89, 0.06);">
+        <strong style="color: var(--gold-light); display: block; margin-bottom: 4px;">Need Immediate Provisioning?</strong>
+        <p style="font-size: 0.88rem; color: var(--text-muted);">
+          Message our Chef Dispatch Desk on WhatsApp at <strong>+679 998 4210</strong> or email <strong>orders@chefsgardenfiji.com</strong> for same-day Nadi &amp; Denarau stock availability.
+        </p>
+      </div>
+    </div>
+
+    <div class="inquiry-form-card">
+      <h3 style="font-family: var(--font-serif); font-size: 1.85rem; margin-bottom: 6px; color: var(--text-ivory);">
+        Chef Wholesale &amp; Sample Request
+      </h3>
+      <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 24px;">
+        Select varieties in the catalog above using <strong>"+ Inquiry Tray"</strong> or complete your kitchen details below.
+      </p>
+
+      <form method="post" action="{% url 'catalog:home' %}#wholesale-inquiry">
+        {% csrf_token %}
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="{{ inquiry_form.chef_name.id_for_label }}">Chef / Contact Name *</label>
+            {{ inquiry_form.chef_name }}
+          </div>
+          <div class="form-group">
+            <label for="{{ inquiry_form.role_title.id_for_label }}">Culinary Role / Title *</label>
+            {{ inquiry_form.role_title }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ inquiry_form.establishment_name.id_for_label }}">Resort, Restaurant, or Superyacht Name *</label>
+          {{ inquiry_form.establishment_name }}
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="{{ inquiry_form.email.id_for_label }}">Email Address *</label>
+            {{ inquiry_form.email }}
+          </div>
+          <div class="form-group">
+            <label for="{{ inquiry_form.phone_whatsapp.id_for_label }}">Phone / WhatsApp (+679) *</label>
+            {{ inquiry_form.phone_whatsapp }}
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="{{ inquiry_form.region.id_for_label }}">Fiji Delivery Region *</label>
+            {{ inquiry_form.region }}
+          </div>
+          <div class="form-group">
+            <label for="{{ inquiry_form.inquiry_type.id_for_label }}">Program Interest *</label>
+            {{ inquiry_form.inquiry_type }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_selected_varieties_summary">Selected Microgreen Varieties (Auto-synced from Inquiry Tray)</label>
+          {{ inquiry_form.selected_varieties_summary }}
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="{{ inquiry_form.estimated_weekly_volume.id_for_label }}">Est. Weekly Volume</label>
+            {{ inquiry_form.estimated_weekly_volume }}
+          </div>
+          <div class="form-group">
+            <label for="{{ inquiry_form.preferred_delivery_days.id_for_label }}">Preferred Harvest / Delivery Days</label>
+            {{ inquiry_form.preferred_delivery_days }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ inquiry_form.culinary_notes.id_for_label }}">Menu Notes / Custom Grow Requests</label>
+          {{ inquiry_form.culinary_notes }}
+        </div>
+
+        <button type="submit" class="btn btn-gold" style="width: 100%; padding: 14px; font-size: 1rem;">
+          Submit Wholesale Inquiry / Request Tasting Box
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Floating Chef's Inquiry Tray -->
+<div id="chef-tray-bar" class="chef-tray-bar">
+  <span id="tray-count-badge" class="tray-count-badge">0</span>
+  <div>
+    <strong style="display: block; font-size: 0.88rem; color: var(--text-ivory);">Chef's Inquiry Tray</strong>
+    <span id="tray-names-preview" style="font-size: 0.78rem; color: var(--gold-light);"></span>
+  </div>
+  <a href="#wholesale-inquiry" class="btn btn-gold btn-sm">
+    Proceed to Quote / Sample Box &rarr;
+  </a>
+</div>
+
+<!-- Quick Culinary Spec Sheet Modal -->
+<div id="spec-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <button type="button" id="spec-modal-close" class="modal-close" aria-label="Close modal">&times;</button>
+    <div class="modal-grid">
+      <div class="modal-image-col">
+        <img id="modal-img" src="" alt="Microgreen closeup" />
+      </div>
+      <div class="modal-content-col">
+        <div id="modal-category" class="card-category"></div>
+        <h3 id="modal-name" style="font-family: var(--font-serif); font-size: 2rem; line-height: 1.15; margin-bottom: 2px;"></h3>
+        <div id="modal-latin" class="card-latin" style="margin-bottom: 14px;"></div>
+        <p id="modal-description" style="font-size: 0.92rem; color: #d6e4dc; margin-bottom: 18px;"></p>
+
+        <div class="culinary-specs-box" style="margin-bottom: 18px;">
+          <div>
+            <strong style="color: var(--gold-light); font-size: 0.78rem; text-transform: uppercase;">Flavor Profile:</strong>
+            <p id="modal-flavor" style="font-size: 0.88rem;"></p>
+          </div>
+          <div>
+            <strong style="color: var(--gold-light); font-size: 0.78rem; text-transform: uppercase;">Mouthfeel &amp; Texture:</strong>
+            <p id="modal-texture" style="font-size: 0.88rem;"></p>
+          </div>
+          <div>
+            <strong style="color: var(--gold-light); font-size: 0.78rem; text-transform: uppercase;">Recommended Culinary Pairings:</strong>
+            <p id="modal-pairings" style="font-size: 0.88rem;"></p>
+          </div>
+          <div>
+            <strong style="color: #6bf0a4; font-size: 0.78rem; text-transform: uppercase;">Executive Chef Plating Tip:</strong>
+            <p id="modal-tip" style="font-size: 0.88rem;"></p>
+          </div>
+          <div>
+            <strong style="color: var(--gold-light); font-size: 0.78rem; text-transform: uppercase;">Harvest &amp; Lead Time:</strong>
+            <p id="modal-harvest" style="font-size: 0.85rem;"></p>
+          </div>
+          <div>
+            <strong style="color: var(--gold-light); font-size: 0.78rem; text-transform: uppercase;">Cold-Chain Storage &amp; Nutrition:</strong>
+            <p id="modal-storage" style="font-size: 0.84rem; margin-bottom: 4px;"></p>
+            <p id="modal-nutrition" style="font-size: 0.82rem; color: var(--text-muted);"></p>
+          </div>
+        </div>
+
+        <div class="card-pricing-row">
+          <div class="price-tier">
+            <span class="price-tier-label">Chef Punnet</span>
+            <span id="modal-punnet-price" class="price-tier-amount" style="font-size: 0.92rem;"></span>
+          </div>
+          <div class="price-tier">
+            <span class="price-tier-label">Live Tray</span>
+            <span id="modal-tray-price" class="price-tier-amount" style="font-size: 0.92rem;"></span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 14px;">
+          <a id="modal-detail-link" href="#" class="btn btn-gold btn-sm" style="flex: 1;">
+            Open Full Culinary Datasheet
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

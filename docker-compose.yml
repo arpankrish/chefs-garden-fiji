@@ -1,0 +1,55 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: chefs_garden_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-chefs_garden_fiji}
+      MYSQL_USER: ${MYSQL_USER:-chef_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-chef_pass_fiji}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_pass_fiji}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-use-native-aio=0
+      --innodb-flush-log-at-trx-commit=2
+      --innodb-buffer-pool-size=64M
+      --performance-schema=OFF
+      --max-connections=50
+      --skip-log-bin
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_pass_fiji}"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  web:
+    build: .
+    container_name: chefs_garden_web
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "80:8000"
+      - "8080:8000"
+    volumes:
+      - .:/app
+      - ./media:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: chefs_garden_cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://web:8000
+    depends_on:
+      - web
+
+volumes:
+  mysql_data:

@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Chefs Garden Fiji — Fine Culinary Microgreens & Edible Botanicals{% endblock %}</title>
+  <meta name="description" content="Fiji's premier culinary microgreens grower supplying executive chefs, island resorts, fine-dining restaurants, and superyachts across Nadi, Denarau, Mamanucas, Coral Coast & Suva." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+</head>
+<body>
+  <!-- Dawn Harvest Top Ribbon -->
+  <div class="top-ribbon">
+    <div class="container top-ribbon-inner">
+      <div>
+        <span class="live-pulse"></span>
+        <strong>5:00 AM DAWN HARVEST:</strong> Same-Day Chilled Delivery to Nadi, Port Denarau, Mamanuca Transfers &amp; Coral Coast
+      </div>
+      <div>
+        <span>Chef Direct Desk: <strong>+679 998 4210 (WhatsApp)</strong> &bull; Pricing in FJD ($)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Navigation -->
+  <header class="site-header">
+    <div class="container nav-inner">
+      <a href="{% url 'catalog:home' %}" class="brand-logo">
+        <div class="brand-crest">CG</div>
+        <div class="brand-text">
+          <span class="brand-name">Chefs Garden Fiji</span>
+          <span class="brand-sub">Culinary Microgreens &bull; Nadi, Fiji Islands</span>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <a href="{% url 'catalog:home' %}#catalog">Chef's Catalog</a>
+        <a href="{% url 'catalog:home' %}#culinary-standards">Culinary Standards</a>
+        <a href="{% url 'catalog:home' %}#wholesale-inquiry">Tasting Box &amp; Wholesale</a>
+        <a href="{% url 'catalog:studio_dashboard' %}">Upload Photos / Studio</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="/admin/" class="btn btn-outline btn-sm" title="Open Django Admin Panel">
+          Django Admin
+        </a>
+        <a href="{% url 'catalog:studio_create' %}" class="btn btn-emerald btn-sm" title="Quick Upload New Microgreen Photo & Description">
+          + Upload Product
+        </a>
+        <a href="{% url 'catalog:home' %}#wholesale-inquiry" class="btn btn-gold btn-sm">
+          Request Chef Box
+        </a>
+      </div>
+    </div>
+  </header>
+
+  {% if messages %}
+    <div class="container flash-container">
+      {% for message in messages %}
+        <div class="alert-banner">
+          <span>{{ message }}</span>
+          <button onclick="this.parentElement.remove()" style="background:none;border:none;color:inherit;cursor:pointer;font-size:1.1rem;">&times;</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="brand-logo" style="margin-bottom: 14px;">
+            <div class="brand-crest">CG</div>
+            <div class="brand-text">
+              <span class="brand-name">Chefs Garden Fiji</span>
+              <span class="brand-sub">Precision Botanicals for Executive Kitchens</span>
+            </div>
+          </div>
+          <p style="margin-bottom: 14px;">
+            Cultivating ultra-fresh, pesticide-free culinary microgreens, shoots, and aromatic garnishes in the Nadi foothills for Fiji's premier island resorts, restaurants, and superyachts.
+          </p>
+          <p style="color: var(--gold-light); font-family: var(--font-mono); font-size: 0.82rem;">
+            Nadi Back Road, Viti Levu, Fiji Islands
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Culinary Navigation</h4>
+          <ul>
+            <li><a href="{% url 'catalog:home' %}#catalog">Browse Microgreens Catalog</a></li>
+            <li><a href="{% url 'catalog:home' %}#culinary-standards">Cold-Chain &amp; Grow Standards</a></li>
+            <li><a href="{% url 'catalog:home' %}#wholesale-inquiry">Request Complimentary Sample Box</a></li>
+            <li><a href="{% url 'catalog:home' %}#wholesale-inquiry">Custom 10-Day Grow Programs</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Fiji Delivery Network</h4>
+          <ul>
+            <li>Denarau Island &amp; Port Denarau Marina</li>
+            <li>Mamanuca &amp; Yasawa Island Resorts</li>
+            <li>Coral Coast, Natadola &amp; Momi Bay</li>
+            <li>Suva, Pacific Harbour &amp; Outer Islands</li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Owner &amp; Admin Portal</h4>
+          <ul>
+            <li><a href="{% url 'catalog:studio_dashboard' %}" style="color: var(--gold);">Visual Product &amp; Photo Studio</a></li>
+            <li><a href="{% url 'catalog:studio_create' %}">+ Upload New Microgreen Photo</a></li>
+            <li><a href="/admin/">Full Django Admin Panel (/admin/)</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 0.82rem;">
+        <span>&copy; 2026 Chefs Garden Fiji. Grown with pride in Viti Levu, Fiji Islands.</span>
+        <span>Powered by Django &amp; MySQL &bull; Wholesale Currency: FJD ($)</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
